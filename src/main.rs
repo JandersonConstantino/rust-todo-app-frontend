@@ -1,13 +1,20 @@
 mod components;
 
 use leptos::{html::Input, *};
+
 use web_sys::SubmitEvent;
 
+#[derive(Clone)]
+struct TodoItem {
+    description: String,
+    done: bool,
+}
+
 fn main() {
+    let (items, set_items) = create_signal(vec![]);
+
     let input_value_element: NodeRef<Input> = create_node_ref();
     let form_element: NodeRef<leptos_dom::html::Form> = create_node_ref();
-
-    let (value, set_value) = create_signal(String::from(""));
 
     let on_submit = move |event: SubmitEvent| {
         event.prevent_default();
@@ -17,7 +24,12 @@ fn main() {
             .expect("need an input element")
             .value();
 
-        set_value.set(typed_value);
+        set_items.update(move |x| {
+            x.push(TodoItem {
+                description: typed_value,
+                done: false,
+            })
+        });
 
         form_element.get().expect("need an form element").reset();
     };
@@ -25,9 +37,9 @@ fn main() {
     mount_to_body(move || {
         view! {
             <div
-                style:margin="0 auto"
-                style:width="60vw"
-                style:padding-top="40px"
+            style:margin="0 auto"
+            style:width="60vw"
+            style:padding-top="40px"
             >
                 <form
                     on:submit=on_submit
@@ -41,9 +53,18 @@ fn main() {
                     />
                 </form>
 
-                <span>
-                    {move || value.get()}
-                </span>
+                <ul
+                    style:list-style-type="none"
+                    style:padding-inline="10px"
+                >
+                    {move || items.get().iter().map(|item| view! {
+                        <components::Item
+                            description=item.description.clone()
+                            done=item.done
+                        />
+                    })
+                    .collect_view()}
+                </ul>
             </div>
         }
     })
