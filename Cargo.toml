@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 leptos = { version = "0.5.0-rc2", features = ["csr"] }
+uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }

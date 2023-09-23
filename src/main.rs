@@ -1,11 +1,12 @@
 mod components;
 
 use leptos::{html::Input, *};
-
+use uuid::Uuid;
 use web_sys::SubmitEvent;
 
 #[derive(Clone)]
 struct TodoItem {
+    id: Uuid,
     description: String,
     done: bool,
 }
@@ -26,12 +27,28 @@ fn main() {
 
         set_items.update(move |x| {
             x.push(TodoItem {
+                id: Uuid::new_v4(),
                 description: typed_value,
                 done: false,
             })
         });
 
         form_element.get().expect("need an form element").reset();
+    };
+
+    let on_toggle_done = move |id: Uuid| {
+        let updated: Vec<TodoItem> = items
+            .get()
+            .into_iter()
+            .map(|mut item| {
+                if item.id == id {
+                    item.done = !item.done;
+                }
+                item
+            })
+            .collect();
+
+        set_items.set(updated);
     };
 
     mount_to_body(move || {
@@ -59,8 +76,10 @@ fn main() {
                 >
                     {move || items.get().iter().map(|item| view! {
                         <components::Item
+                            id=item.id
                             description=item.description.clone()
                             done=item.done
+                            on_toggle_done=on_toggle_done
                         />
                     })
                     .collect_view()}

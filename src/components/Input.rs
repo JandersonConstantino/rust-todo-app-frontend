@@ -12,7 +12,7 @@ pub fn Input(
         name=name
         node_ref=node_ref
         style:padding="10px 20px"
-        style:width="100%"
+        style:width="calc(100% - 40px)"
       />
     }
 }
